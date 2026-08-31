@@ -89,20 +89,6 @@ func TestAttacker_Attack_BasicAuth(t *testing.T) {
 }
 
 func TestAttacker_Attack_AttackAllRoutes(t *testing.T) {
-	// This server answers every DESCRIBE with 401 (like a camera that returns
-	// something other than 404 on a non-existent route), so the probe route is
-	// accepted and Cameradar would normally stop before trying the dictionary.
-	newServer := func(t *testing.T) (netip.Addr, uint16) {
-		return startRTSPServer(t, rtspServerConfig{
-			allowAll:    true,
-			requireAuth: true,
-			username:    "user",
-			password:    "pass",
-			authMethod:  headers.AuthMethodDigest,
-			sendFrames:  true,
-		})
-	}
-
 	dict := testDictionary{
 		routes:    []string{"stream"},
 		usernames: []string{"user"},
@@ -110,7 +96,7 @@ func TestAttacker_Attack_AttackAllRoutes(t *testing.T) {
 	}
 
 	t.Run("disabled stops at the default route", func(t *testing.T) {
-		addr, port := newServer(t)
+		addr, port := startAllRoutesServer(t)
 
 		attacker, err := attack.New(dict, 0, time.Second, false, false, ui.NopReporter{})
 		require.NoError(t, err)
@@ -124,7 +110,7 @@ func TestAttacker_Attack_AttackAllRoutes(t *testing.T) {
 	})
 
 	t.Run("enabled keeps attacking the dictionary", func(t *testing.T) {
-		addr, port := newServer(t)
+		addr, port := startAllRoutesServer(t)
 
 		attacker, err := attack.New(dict, 0, time.Second, false, true, ui.NopReporter{})
 		require.NoError(t, err)

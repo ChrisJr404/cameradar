@@ -323,12 +323,16 @@ can increase attack duration.
 
 Example with Docker:
 
+Mount your custom routes list into the container and point `--custom-routes` at
+the in-container path:
+
 ```bash
 docker run --rm -t --net=host \
+        -v /path/to/dictionaries:/tmp/dictionaries \
         ullaakut/cameradar \
         --targets 192.168.1.0/24 \
         --ports "554,8554" \
-        --custom-routes ./my-routes \
+        --custom-routes /tmp/dictionaries/my_routes \
         --attack-all-routes
 ```
 
